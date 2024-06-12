@@ -63,17 +63,18 @@ const Page = ({ showForm, toggleForm }) => {
     event.preventDefault();
 
     try {
+      // Buat format data yang akan dikirim
       const formData = {
         hp: event.target.hp.value,
         nama: event.target.nama.value,
-        tanggalMasuk: event.target.tanggal_masuk.value,
-        tanggalSelesai: event.target.tanggal_selesai.value,
-        catatanKhusus: event.target.catatan_khusus.value,
-        items: items.map((item) => ({
-          jenisLaundry: item.jenisLaundry,
-          jumlahBerat: item.jumlahBerat,
-        })),
-        totalHarga: totalHarga,
+        tanggal_masuk: event.target.tanggal_masuk.value,
+        tanggal_selesai: event.target.tanggal_selesai.value,
+        catatan_khusus: event.target.catatan_khusus.value,
+        // Ambil satu jenis laundry saja untuk simplicity, atau kirim dalam bentuk lain sesuai kebutuhan
+        jenis_laundry: items[0].jenisLaundry,
+        jumlah_berat: items[0].jumlahBerat,
+        total_harga: totalHarga,
+        status: "0", // Status default 'Proses'
       };
 
       console.log("Data yang akan dikirim ke server:", formData); // Tambahkan console.log di sini
@@ -99,14 +100,14 @@ const Page = ({ showForm, toggleForm }) => {
   if (!showForm) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 ">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50">
       <form
         onSubmit={handleSubmit}
-        className="bg-white px-5 py-5 rounded-lg flex flex-col "
+        className="bg-white px-5 py-5 rounded-lg flex flex-col"
       >
-        <div className=" items-center border-b-2 mb-2">
+        <div className="items-center border-b-2 mb-2">
           <div className="flex justify-between mb-2">
-            <div className=" flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
               <MdOutlineLocalLaundryService size={20} />{" "}
               <h2 className="text-xl font-bold">Tambah Cucian</h2>
             </div>
@@ -164,7 +165,7 @@ const Page = ({ showForm, toggleForm }) => {
             />
           </div>
         </div>
-        <div className=" static border max-w-2xl p-4 mt-4">
+        <div className="static border max-w-2xl p-4 mt-4">
           {items.map((item, index) => (
             <div key={index} className="flex space-x-4 mb-4">
               <div className="flex flex-col">
@@ -191,7 +192,7 @@ const Page = ({ showForm, toggleForm }) => {
                   <option value="cucijas">Cuci Jas (Rp 20.000/pcs)</option>
                 </select>
               </div>
-              <div className="flex flex-col ">
+              <div className="flex flex-col">
                 <label htmlFor={`jumlah_berat${index}`}>
                   Jumlah ({getUnit(item.jenisLaundry)})
                 </label>
@@ -209,7 +210,7 @@ const Page = ({ showForm, toggleForm }) => {
               {index > 0 && (
                 <button
                   type="button"
-                  className=" mt-8  "
+                  className="mt-8"
                   onClick={() => removeItem(index)}
                 >
                   <IoMdClose size={20} />
@@ -219,13 +220,13 @@ const Page = ({ showForm, toggleForm }) => {
           ))}
           <button
             type="button"
-            className=" px-1 py-1 w-20 border bg-blue-500 text-white text-sm rounded-lg"
+            className="px-1 py-1 w-20 border bg-blue-500 text-white text-sm rounded-lg"
             onClick={addItem}
           >
             Tambah
           </button>
         </div>
-        <div className="flex space-x-4 mt-4 ">
+        <div className="flex space-x-4 mt-4">
           <div className="flex flex-col">
             <label htmlFor="total_harga">Total Harga</label>
             <input
