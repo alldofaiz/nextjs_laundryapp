@@ -2,12 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
-import { MdModeEditOutline } from "react-icons/md";
 import Modal from "react-modal";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
 import axios from "axios";
+
+import { IoMdClose } from "react-icons/io";
+import {
+  MdModeEditOutline,
+  MdOutlineLocalLaundryService,
+} from "react-icons/md";
 
 const MySwal = withReactContent(Swal);
 
@@ -60,6 +65,7 @@ export default function DaftarCucian() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [data, setData] = useState([]);
+  const [items, setItems] = useState([]); // State untuk menyimpan daftar items
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
 
@@ -282,11 +288,62 @@ export default function DaftarCucian() {
           MySwal.fire({
             icon: "error",
             title: "Gagal",
-            text: "Gagal menghapus data.",
+            text: "Gagal menghapus data",
           });
         }
       }
     });
+  };
+
+  // Fungsi untuk menambah item ke dalam state items
+  const addItem = () => {
+    const newItem = {
+      jenisLaundry: "",
+      jumlahBerat: "",
+    };
+    setItems([...items, newItem]);
+  };
+
+  // Fungsi untuk menghapus item dari state items berdasarkan index
+  const removeItem = (index) => {
+    const updatedItems = [...items];
+    updatedItems.splice(index, 1);
+    setItems(updatedItems);
+  };
+
+  // Fungsi untuk menghandle perubahan jenis laundry pada item tertentu
+  const handleChangeJenisLaundry = (index, event) => {
+    const updatedItems = [...items];
+    updatedItems[index] = {
+      ...updatedItems[index],
+      jenisLaundry: event.target.value,
+    };
+    setItems(updatedItems);
+  };
+
+  // Fungsi untuk menghandle perubahan jumlah berat pada item tertentu
+  const handleChangeJumlahBerat = (index, event) => {
+    const updatedItems = [...items];
+    updatedItems[index] = {
+      ...updatedItems[index],
+      jumlahBerat: event.target.value,
+    };
+    setItems(updatedItems);
+  };
+
+  // Fungsi untuk mendapatkan satuan berat berdasarkan jenis laundry
+  const getUnit = (jenisLaundry) => {
+    switch (jenisLaundry) {
+      case "cucibiasa":
+      case "cuciexpress":
+        return "kg";
+      case "setrikasaja":
+      case "cucisprei":
+      case "cucijas":
+        return "pcs";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -320,103 +377,78 @@ export default function DaftarCucian() {
         contentLabel="Update Cucian"
       >
         {itemToEdit && (
-          <form onSubmit={handleUpdateSubmit}>
-            <div className="flex-col flex space-y-4">
-              <div className="flex space-x-4">
-                <div className="flex-col flex">
-                  <label htmlFor="hp">No. Handphone</label>
-                  <input
-                    type="number"
-                    id="hp"
-                    name="hp"
-                    className="border px-4 py-1 mt-2 rounded-md"
-                    required
-                    defaultValue={itemToEdit.hp}
-                  />
+          <form
+            onSubmit={handleUpdateSubmit}
+            className="bg-white px-5 py-5 rounded-lg flex flex-col"
+          >
+            <div className="items-center border-b-2 mb-2">
+              <div className="flex justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <MdOutlineLocalLaundryService size={20} />{" "}
+                  <h2 className="text-xl font-bold">Update Cucian</h2>
                 </div>
-                <div className="flex-col flex">
-                  <label htmlFor="nama">Nama</label>
-                  <input
-                    type="text"
-                    id="nama"
-                    name="nama"
-                    className="border px-4 py-1 mt-2 rounded-md"
-                    required
-                    defaultValue={itemToEdit.nama}
-                  />
-                </div>
-              </div>
-              <div className="flex space-x-4">
-                <div className="flex flex-col">
-                  <label htmlFor="tanggal_masuk">Tanggal Masuk</label>
-                  <input
-                    type="date"
-                    id="tanggal_masuk"
-                    name="tanggal_masuk"
-                    className="border px-4 py-1 mt-2 rounded-md"
-                    required
-                    defaultValue={itemToEdit.tanggal_masuk}
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="tanggal_selesai">Tanggal Selesai</label>
-                  <input
-                    type="date"
-                    id="tanggal_selesai"
-                    name="tanggal_selesai"
-                    className="border px-4 py-1 mt-2 rounded-md"
-                    required
-                    defaultValue={itemToEdit.tanggal_selesai}
-                  />
-                </div>
-              </div>
-              <div className="flex-col flex">
-                <label htmlFor="catatan_khusus">Catatan Khusus</label>
-                <input
-                  type="text"
-                  id="catatan_khusus"
-                  name="catatan_khusus"
-                  className="border px-2 py-1 mt-2 rounded-md"
-                  defaultValue={itemToEdit.catatan_khusus}
-                />
-              </div>
-              <div className="flex-col flex" style={{ display: "none" }}>
-                <label htmlFor="jenis_laundry">Jenis Laundry</label>
-                <select
-                  id="jenis_laundry"
-                  name="jenis_laundry"
-                  className="border px-4 py-1 mt-2 rounded-md"
-                  required
-                  defaultValue={itemToEdit.jenis_laundry}
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="text-gray-700"
                 >
-                  <option value="" disabled>
-                    Pilih jenis laundry
-                  </option>
-                  <option value="cucibiasa">Cuci Biasa (Rp 7.000/kg)</option>
-                  <option value="cuciexpress">
-                    Cuci Express (Rp 10.000/kg)
-                  </option>
-                  <option value="setrikasaja">
-                    Setrika Saja (Rp 5.000/kg)
-                  </option>
-                  <option value="cucisprei">Cuci Sprei (Rp 10.000/pcs)</option>
-                  <option value="cucijas">Cuci Jas (Rp 20.000/pcs)</option>
-                </select>
+                  <IoMdClose size={24} />
+                </button>
               </div>
+            </div>
 
+            <div className="flex space-x-4">
               <div className="flex-col flex">
-                <label htmlFor="jumlah_berat">Berat (kg)</label>
+                <label htmlFor="hp">No. Handphone</label>
                 <input
                   type="number"
-                  id="jumlah_berat"
-                  name="jumlah_berat"
+                  id="hp"
+                  name="hp"
                   className="border px-4 py-1 mt-2 rounded-md"
-                  placeholder="Masukkan jumlah berat"
                   required
-                  defaultValue={itemToEdit.jumlah_berat}
+                  defaultValue={itemToEdit.hp}
                 />
               </div>
               <div className="flex-col flex">
+                <label htmlFor="nama">Nama</label>
+                <input
+                  type="text"
+                  id="nama"
+                  name="nama"
+                  className="border px-4 py-1 mt-2 rounded-md"
+                  required
+                  defaultValue={itemToEdit.nama}
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-4 mt-4 ">
+              <div className="flex flex-col ">
+                <label htmlFor="tanggal_masuk">Tanggal Masuk</label>
+                <input
+                  type="date"
+                  id="tanggal_masuk"
+                  name="tanggal_masuk"
+                  className="border px-4 py-1 mt-2 rounded-md"
+                  required
+                  defaultValue={itemToEdit.tanggal_masuk}
+                />
+              </div>
+              <div className="flex flex-col">
+                <label htmlFor="tanggal_selesai">Tanggal Selesai</label>
+                <input
+                  type="date"
+                  id="tanggal_selesai"
+                  name="tanggal_selesai"
+                  className="border px-4 py-1 mt-2 rounded-md"
+                  required
+                  defaultValue={itemToEdit.tanggal_selesai}
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-4 mt-4">
+              <div className="flex flex-col">
                 <label htmlFor="total_harga">Total Harga</label>
                 <input
                   type="number"
@@ -428,6 +460,93 @@ export default function DaftarCucian() {
                   readOnly
                 />
               </div>
+              <div className="flex flex-col">
+                <label htmlFor="catatan_khusus">Catatan Khusus</label>
+                <input
+                  type="text"
+                  id="catatan_khusus"
+                  name="catatan_khusus"
+                  className="border px-2 py-1 mt-2 rounded-md"
+                  defaultValue={itemToEdit.catatan_khusus}
+                />
+              </div>
+            </div>
+
+            <div className="static border max-w-2xl p-4 mt-4">
+              {items.map((item, index) => (
+                <div key={index} className="flex space-x-4 mb-4">
+                  <div className="flex flex-col">
+                    <label htmlFor={`jenis_laundry${index}`}>
+                      Jenis Laundry
+                    </label>
+                    <select
+                      id={`jenis_laundry${index}`}
+                      name={`jenis_laundry${index}`}
+                      className="border px-4 py-1 mt-2 rounded-md"
+                      required
+                      value={item.jenisLaundry}
+                      onChange={(event) =>
+                        handleChangeJenisLaundry(index, event)
+                      }
+                    >
+                      <option value="" disabled>
+                        Pilih jenis laundry
+                      </option>
+                      <option value="cucibiasa">
+                        Cuci Biasa (Rp 7.000/kg)
+                      </option>
+                      <option value="cuciexpress">
+                        Cuci Express (Rp 10.000/kg)
+                      </option>
+                      <option value="setrikasaja">
+                        Setrika Saja (Rp 5.000/kg)
+                      </option>
+                      <option value="cucisprei">
+                        Cuci Sprei (Rp 10.000/pcs)
+                      </option>
+                      <option value="cucijas">Cuci Jas (Rp 20.000/pcs)</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col">
+                    <label htmlFor={`jumlah_berat${index}`}>
+                      Jumlah ({getUnit(item.jenisLaundry)})
+                    </label>
+                    <input
+                      type="number"
+                      id={`jumlah_berat${index}`}
+                      name={`jumlah_berat${index}`}
+                      className="border px-4 py-1 mt-2 rounded-md"
+                      placeholder={`Masukkan jumlah ${getUnit(
+                        item.jenisLaundry
+                      )}`}
+                      required
+                      value={item.jumlahBerat}
+                      onChange={(event) =>
+                        handleChangeJumlahBerat(index, event)
+                      }
+                    />
+                  </div>
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      className="mt-8"
+                      onClick={() => removeItem(index)}
+                    >
+                      <IoMdClose size={20} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                className="px-1 py-1 w-20 border bg-blue-500 text-white text-sm rounded-lg"
+                onClick={addItem}
+              >
+                Tambah
+              </button>
+            </div>
+
+            <div className=" flex-col flex space-y-4">
               <button
                 type="submit"
                 className="bg-blue-500 text-white px-4 py-2 rounded-md mt-4"
