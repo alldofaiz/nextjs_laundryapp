@@ -75,7 +75,7 @@ export default function DaftarCucian() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/laundry/");
+      const response = await axios.get("http://localhost:8000/api/orders/");
       const sortedData = response.data.sort((a, b) => a.status - b.status);
       setData(sortedData);
     } catch (error) {
@@ -110,7 +110,7 @@ export default function DaftarCucian() {
 
     try {
       const response = await axios.put(
-        `http://localhost:8000/api/laundry/${itemToEdit.id}/`,
+        `http://localhost:8000/api/orders/${itemToEdit.id}/`,
         formData
       );
       console.log("Respon dari server (update):", response.data);
@@ -230,7 +230,7 @@ export default function DaftarCucian() {
       if (result.isConfirmed) {
         // Memperbarui status cucian di backend
         axios
-          .put(`http://localhost:8000/api/laundry/${row.id}/`, {
+          .put(`http://localhost:8000/api/orders/${row.id}/`, {
             ...row,
             status: "1", // Mengubah status menjadi 1 (Selesai)
           })
@@ -275,7 +275,7 @@ export default function DaftarCucian() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:8000/api/laundry/${id}/`);
+          await axios.delete(`http://localhost:8000/api/orders/${id}/`);
           // Hapus item dari state data
           setData(data.filter((item) => item.id !== id));
           MySwal.fire({

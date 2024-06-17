@@ -63,24 +63,21 @@ const Page = ({ showForm, toggleForm }) => {
     event.preventDefault();
 
     try {
-      // Buat format data yang akan dikirim
       const formData = {
         hp: event.target.hp.value,
         nama: event.target.nama.value,
         tanggal_masuk: event.target.tanggal_masuk.value,
         tanggal_selesai: event.target.tanggal_selesai.value,
         catatan_khusus: event.target.catatan_khusus.value,
-        // Ambil satu jenis laundry saja untuk simplicity, atau kirim dalam bentuk lain sesuai kebutuhan
-        jenis_laundry: items[0].jenisLaundry,
-        jumlah_berat: items[0].jumlahBerat,
+        items: items, // Send all items
         total_harga: totalHarga,
-        status: "0", // Status default 'Proses'
+        status: "0",
       };
 
-      console.log("Data yang akan dikirim ke server:", formData); // Tambahkan console.log di sini
+      console.log("Data yang akan dikirim ke server:", formData);
 
       const response = await axios.post(
-        "http://localhost:8000/api/laundry/",
+        "http://localhost:8000/api/add_order/",
         formData
       );
 
@@ -89,11 +86,8 @@ const Page = ({ showForm, toggleForm }) => {
       event.target.reset();
       setItems([{ jenisLaundry: "", jumlahBerat: "" }]);
       setTotalHarga(0);
-
-      // Tampilkan notifikasi atau lakukan tindakan lain sesuai kebutuhan
     } catch (error) {
       console.error("Error saat menyimpan data:", error);
-      // Tampilkan pesan kesalahan atau lakukan penanganan kesalahan lainnya
     }
   };
 
@@ -143,6 +137,7 @@ const Page = ({ showForm, toggleForm }) => {
             />
           </div>
         </div>
+
         <div className="flex space-x-4 mt-4 ">
           <div className="flex flex-col ">
             <label htmlFor="tanggal_masuk">Tanggal Masuk</label>
@@ -165,6 +160,7 @@ const Page = ({ showForm, toggleForm }) => {
             />
           </div>
         </div>
+
         <div className="static border max-w-2xl p-4 mt-4">
           {items.map((item, index) => (
             <div key={index} className="flex space-x-4 mb-4">
@@ -226,6 +222,7 @@ const Page = ({ showForm, toggleForm }) => {
             Tambah
           </button>
         </div>
+
         <div className="flex space-x-4 mt-4">
           <div className="flex flex-col">
             <label htmlFor="total_harga">Total Harga</label>
