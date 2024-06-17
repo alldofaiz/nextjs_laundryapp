@@ -78,6 +78,7 @@ export default function DaftarCucian() {
       const response = await axios.get("http://localhost:8000/api/orders/");
       const sortedData = response.data.sort((a, b) => a.status - b.status);
       setData(sortedData);
+      console.log("Fetched order:", sortedData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -128,6 +129,38 @@ export default function DaftarCucian() {
     }
   };
 
+  const getJenisLaundryDisplayName = (jenisLaundry) => {
+    switch (jenisLaundry) {
+      case "cucibiasa":
+        return "Cuci Biasa";
+      case "cuciexpress":
+        return "Cuci Express";
+      case "setrikasaja":
+        return "Setrika Saja";
+      case "cucisprei":
+        return "Cuci Seprei";
+      case "cucijas":
+        return "Cuci Jas";
+
+      default:
+        return jenisLaundry;
+    }
+  };
+
+  const getUnit = (jenisLaundry) => {
+    switch (jenisLaundry) {
+      case "cucibiasa":
+      case "cuciexpress":
+      case "setrikasaja":
+        return "kg";
+      case "cucisprei":
+      case "cucijas":
+        return "pcs";
+      default:
+        return "";
+    }
+  };
+
   const columns = [
     {
       name: "No.",
@@ -151,12 +184,37 @@ export default function DaftarCucian() {
     },
     {
       name: "Jenis Laundry",
-      selector: (row) => row.jenis_laundry,
+      cell: (row) => (
+        <div>
+          {row.items.map((item, index) => (
+            <div key={index}>
+              {getJenisLaundryDisplayName(item.jenis_laundry)}
+            </div>
+          ))}
+        </div>
+      ),
       sortable: false,
     },
     {
-      name: "Berat (kg)",
-      selector: (row) => row.jumlah_berat,
+      name: "Berat",
+      cell: (row) => (
+        <div>
+          {row.items.map((item, index) => {
+            // Periksa apakah item.jumlah_berat adalah angka yang valid
+            const parsedBerat = parseFloat(item.jumlah_berat);
+            if (!isNaN(parsedBerat)) {
+              return (
+                <div key={index}>
+                  {parsedBerat.toFixed(2)} {getUnit(item.jenis_laundry)}
+                </div>
+              );
+            } else {
+              // Jika item.jumlah_berat tidak valid, tampilkan nilai kosong atau sesuaikan dengan kebutuhan
+              return null; // atau tampilkan pesan alternatif jika diperlukan
+            }
+          })}
+        </div>
+      ),
       sortable: false,
     },
     {
@@ -329,21 +387,6 @@ export default function DaftarCucian() {
       jumlahBerat: event.target.value,
     };
     setItems(updatedItems);
-  };
-
-  // Fungsi untuk mendapatkan satuan berat berdasarkan jenis laundry
-  const getUnit = (jenisLaundry) => {
-    switch (jenisLaundry) {
-      case "cucibiasa":
-      case "cuciexpress":
-        return "kg";
-      case "setrikasaja":
-      case "cucisprei":
-      case "cucijas":
-        return "pcs";
-      default:
-        return "";
-    }
   };
 
   return (
