@@ -63,11 +63,13 @@ const Page = ({ showForm, toggleForm }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Validasi tanggal selesai tidak boleh lebih dari tanggal masuk
     const tanggalMasuk = new Date(event.target.tanggal_masuk.value);
-    const tanggalSelesai = new Date(event.target.tanggal_selesai.value);
+    const formattedTanggalMasuk = tanggalMasuk.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    if (tanggalSelesai < tanggalMasuk) {
+    const tanggalSelesai = new Date(event.target.tanggal_selesai.value);
+    const formattedTanggalSelesai = tanggalSelesai.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    if (formattedTanggalSelesai < formattedTanggalMasuk) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -77,14 +79,16 @@ const Page = ({ showForm, toggleForm }) => {
     }
 
     try {
-      // Proses pengiriman data jika validasi tanggal berhasil
       const formData = {
         hp: event.target.hp.value,
         nama: event.target.nama.value,
-        tanggal_masuk: tanggalMasuk.toISOString(),
-        tanggal_selesai: tanggalSelesai.toISOString(),
+        tanggal_masuk: formattedTanggalMasuk,
+        tanggal_selesai: formattedTanggalSelesai,
         catatan_khusus: event.target.catatan_khusus.value,
-        items: items,
+        items: items.map((item) => ({
+          jenisLaundry: item.jenisLaundry,
+          jumlahBerat: parseFloat(item.jumlahBerat),
+        })),
         total_harga: totalHarga,
         status: "0",
       };
@@ -103,7 +107,6 @@ const Page = ({ showForm, toggleForm }) => {
         title: "Success",
         text: "Data berhasil disimpan!",
       }).then((result) => {
-        // Jika pengguna menekan OK, reset formulir dan state
         if (result.isConfirmed || result.isDismissed) {
           event.target.reset();
           setItems([{ jenisLaundry: "", jumlahBerat: "" }]);

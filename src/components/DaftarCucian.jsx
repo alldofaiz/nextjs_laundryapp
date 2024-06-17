@@ -7,12 +7,12 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
 import axios from "axios";
-
 import { IoMdClose } from "react-icons/io";
 import {
   MdModeEditOutline,
   MdOutlineLocalLaundryService,
 } from "react-icons/md";
+import { IoIosSearch } from "react-icons/io";
 
 const MySwal = withReactContent(Swal);
 
@@ -392,18 +392,21 @@ export default function DaftarCucian() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col justify-center px-2">
+      <div className="flex flex-col justify-center">
         <h1 className="text-4xl font-bold text-center mt-5 mb-5">
           Daftar Cucian
         </h1>
         <div className=" px-2 border-2 rounded-lg">
-          <input
-            type="text"
-            className="ml-auto px-3 py-1 border border-gray-400 rounded-md mb-1 mt-5 w-40"
-            placeholder="Cari Nama"
-            onChange={(e) => setSearchText(e.target.value)}
-            value={searchText}
-          />
+          <div className="relative">
+            <input
+              type="text"
+              className="ml-auto px-3 py-1 border border-gray-400 rounded-md mb-1 mt-5 w-40 pl-10"
+              placeholder="Cari Nama"
+              onChange={(e) => setSearchText(e.target.value)}
+              value={searchText}
+            />
+            <IoIosSearch className="absolute top-7 left-3 text-gray-800" />
+          </div>
           <DataTable
             columns={columns}
             data={filteredData} // Menggunakan data yang telah difilter
