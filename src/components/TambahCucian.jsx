@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
 import { MdOutlineLocalLaundryService } from "react-icons/md";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Page = ({ showForm, toggleForm }) => {
   const [items, setItems] = useState([{ jenisLaundry: "", jumlahBerat: "" }]);
@@ -62,14 +63,28 @@ const Page = ({ showForm, toggleForm }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Validasi tanggal selesai tidak boleh lebih dari tanggal masuk
+    const tanggalMasuk = new Date(event.target.tanggal_masuk.value);
+    const tanggalSelesai = new Date(event.target.tanggal_selesai.value);
+
+    if (tanggalSelesai < tanggalMasuk) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Tanggal selesai tidak boleh sebelum tanggal masuk!",
+      });
+      return;
+    }
+
     try {
+      // Proses pengiriman data jika validasi tanggal berhasil
       const formData = {
         hp: event.target.hp.value,
         nama: event.target.nama.value,
-        tanggal_masuk: event.target.tanggal_masuk.value,
-        tanggal_selesai: event.target.tanggal_selesai.value,
+        tanggal_masuk: tanggalMasuk.toISOString(),
+        tanggal_selesai: tanggalSelesai.toISOString(),
         catatan_khusus: event.target.catatan_khusus.value,
-        items: items, // Send all items
+        items: items,
         total_harga: totalHarga,
         status: "0",
       };
@@ -83,11 +98,25 @@ const Page = ({ showForm, toggleForm }) => {
 
       console.log("Respon dari server:", response.data);
 
-      event.target.reset();
-      setItems([{ jenisLaundry: "", jumlahBerat: "" }]);
-      setTotalHarga(0);
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Data berhasil disimpan!",
+      }).then((result) => {
+        // Jika pengguna menekan OK, reset formulir dan state
+        if (result.isConfirmed || result.isDismissed) {
+          event.target.reset();
+          setItems([{ jenisLaundry: "", jumlahBerat: "" }]);
+          setTotalHarga(0);
+        }
+      });
     } catch (error) {
       console.error("Error saat menyimpan data:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Terjadi kesalahan saat menyimpan data!",
+      });
     }
   };
 
@@ -137,7 +166,6 @@ const Page = ({ showForm, toggleForm }) => {
             />
           </div>
         </div>
-
         <div className="flex space-x-4 mt-4 ">
           <div className="flex flex-col ">
             <label htmlFor="tanggal_masuk">Tanggal Masuk</label>

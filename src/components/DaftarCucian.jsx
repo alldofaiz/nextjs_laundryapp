@@ -166,11 +166,7 @@ export default function DaftarCucian() {
       name: "No.",
       selector: (_, index) => index + 1,
       sortable: true,
-    },
-    {
-      name: "id",
-      selector: (row) => row.id,
-      sortable: false,
+      width: "80px",
     },
     {
       name: "Nama",
@@ -194,6 +190,7 @@ export default function DaftarCucian() {
         </div>
       ),
       sortable: false,
+      width: "120px",
     },
     {
       name: "Berat",
@@ -216,16 +213,19 @@ export default function DaftarCucian() {
         </div>
       ),
       sortable: false,
+      width: "120px",
     },
     {
       name: "Tanggal Masuk",
       selector: (row) => formatDate(row.tanggal_masuk),
       sortable: true,
+      minWidth: "150px", // Adjust width as needed
     },
     {
       name: "Tanggal Selesai",
       selector: (row) => formatDate(row.tanggal_selesai),
       sortable: true,
+      minWidth: "150px", // Adjust width as needed
     },
     {
       name: "Total",
@@ -233,6 +233,7 @@ export default function DaftarCucian() {
       sortable: true,
       format: (row) =>
         `Rp ${row.total_harga ? row.total_harga.toLocaleString("id-ID") : ""}`,
+      width: "120px",
     },
     {
       name: "Catatan",
